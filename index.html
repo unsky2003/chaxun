@@ -395,36 +395,23 @@
   <script>
     // 从本地存储加载数据或使用默认数据
     let studentsData = JSON.parse(localStorage.getItem('studentsData')) || [
-        {
-            "﻿学生姓名": "丁国豪",
-            "身份证号": "37040220121114053X",
-            "报到编号": "B0001",
-            "录取情况": "恭喜您被枣庄市第四十一中学北校区录取",
-            "校服征订征求家长意见选项（详见公众号说明）": "",
-            "缴费二维码": "jiaofei2.png",
-            "报到时间": "请持本页面截图8月29日早8:00携带文具到校报到。详细说明请见公众号榜示。",
-            "特别提醒": "校服意见选择后，别忘记点击下面“确认提交”"
-        },
-        {
-            "﻿学生姓名": "丁文诚",
-            "身份证号": "371324201301164918",
-            "报到编号": "B0002",
-            "录取情况": "恭喜您被枣庄市第四十一中学北校区录取",
-            "校服征订征求家长意见选项（详见公众号说明）": "",
-            "缴费二维码": "jiaofei2.png",
-            "报到时间": "请持本页面截图8月29日早8:01携带文具到校报到。详细说明请见公众号榜示。",
-            "特别提醒": "校服意见选择后，别忘记点击下面“确认提交”"
-        },
-        {
-            "﻿学生姓名": "丁泽城",
-            "身份证号": "370402201301160112",
-            "报到编号": "B0003",
-            "录取情况": "恭喜您被枣庄市第四十一中学北校区录取",
-            "校服征订征求家长意见选项（详见公众号说明）": "",
-            "缴费二维码": "jiaofei2.png",
-            "报到时间": "请持本页面截图8月29日早8:02携带文具到校报到。详细说明请见公众号榜示。",
-            "特别提醒": "校服意见选择后，别忘记点击下面“确认提交”"
-        }
+      // 页面加载时从JSON文件加载完整数据
+window.addEventListener('DOMContentLoaded', async () => {
+  try {
+    // 加载完整的学生数据JSON文件（确保该文件与index.html同服务器）
+    const response = await fetch('北校区 2025 新生录取查询.json');
+    if (!response.ok) throw new Error('数据加载失败');
+    
+    studentsData = await response.json();
+    // 保存到localStorage供后续使用
+    localStorage.setItem('studentsData', JSON.stringify(studentsData));
+    console.log(`成功加载 ${studentsData.length} 条学生数据`);
+  } catch (error) {
+    console.error('数据加载错误:', error);
+    // 加载失败时使用备份数据（可选）
+    studentsData = JSON.parse(localStorage.getItem('studentsData')) || [];
+  }
+});
     ];
 
     // 存储查询记录和校服选择的数组
@@ -627,15 +614,25 @@
           modalContent.classList.add('scale-100', 'opacity-100');
         }, 10);
         
-        // 设置二维码
-        if (paymentQrcode) {
-          paymentQrcodeImg.src = paymentQrcode;
-        } else {
-          // 默认二维码
-          paymentQrcodeImg.src = 'https://picsum.photos/200/200';
-        }
-      }
-    });
+       // 修改提交校服选择后的二维码设置逻辑（约625-631行）
+// 设置二维码
+if (paymentQrcode) {
+  paymentQrcodeImg.src = paymentQrcode;
+} else {
+  // 替换为服务器上的实际收款码图片路径
+  paymentQrcodeImg.src = 'jiaofei2.png'; // 确保该图片在服务器根目录或正确路径
+}
+
+// 同时修改页面加载时的二维码预览（约925-928行）
+// 页面加载时设置二维码
+if (paymentQrcode) {
+  qrcodePreviewImg.src = paymentQrcode;
+  qrcodePreview.classList.remove('hidden');
+} else {
+  // 管理员页面默认显示收款码
+  qrcodePreviewImg.src = 'jiaofei2.png';
+  qrcodePreview.classList.remove('hidden');
+}
     
     // 关闭弹窗
     closeModal.addEventListener('click', () => {
