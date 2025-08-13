@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>枣庄市第四十一中学北校区 - 2025新生录取查询</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1E40AF', // 深蓝主色调
+            secondary: '#3B82F6', // 蓝色辅助色
+            accent: '#F97316', // 橙色强调色
+            success: '#10B981', // 绿色成功色
+            neutral: '#64748B', // 中性色
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .card-shadow {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .transition-custom {
+        transition: all 0.3s ease;
+      }
+      .animate-fadeIn {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .form-error {
+        border-color: #ef4444 !important;
+      }
+      .error-message {
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+      }
+    }
+  </style>
+</head>
+
+<body class="font-inter bg-gray-50 text-gray-800 min-h-screen">
+  <!-- 顶部导航 -->
+  <header class="bg-primary text-white shadow-md fixed w-full top-0 z-50 transition-all duration-300">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-graduation-cap text-2xl"></i>
+        <h1 class="text-xl md:text-2xl font-bold">枣庄市第四十一中学北校区</h1>
+      </div>
+      <nav>
+        <ul class="flex space-x-6">
+          <li><a href="#" id="query-link" class="hover:text-yellow-200 transition-custom active">录取查询</a></li>
+          <li><a href="#" id="admin-link" class="hover:text-yellow-200 transition-custom">管理中心</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 pt-24 pb-16 min-h-screen">
+    <!-- 查询页面 -->
+    <section id="query-section" class="max-w-4xl mx-auto">
+      <div class="text-center mb-10">
+        <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-primary mb-3 text-shadow">2025年新生录取查询</h2>
+        <p class="text-neutral text-lg">请输入学生姓名和身份证号进行查询</p>
+      </div>
+      
+      <!-- 查询表单 - 修复了提交功能 -->
+      <div class="bg-white rounded-xl p-6 md:p-8 card-shadow mb-8 transform transition-custom hover:scale-[1.01]">
+        <form id="query-form" class="space-y-6">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div>
+              <label for="student-name" class="block text-sm font-medium text-gray-700 mb-1">学生姓名</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                  <i class="fa fa-user"></i>
+                </span>
+                <input type="text" id="student-name" name="student-name" required
+                  class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom outline-none"
+                  placeholder="请输入学生姓名">
+                <div id="name-error" class="error-message hidden">请输入学生姓名</div>
+              </div>
+            </div>
+            <div>
+              <label for="id-card" class="block text-sm font-medium text-gray-700 mb-1">身份证号</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                  <i class="fa fa-id-card"></i>
+                </span>
+                <input type="text" id="id-card" name="id-card" required
+                  class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom outline-none"
+                  placeholder="请输入身份证号">
+                <div id="id-error" class="error-message hidden">请输入正确的身份证号</div>
+              </div>
+            </div>
+          </div>
+          <div class="text-center">
+            <button type="submit" id="query-button"
+              class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-custom transform hover:-translate-y-1">
+              <i class="fa fa-search mr-2"></i>查询录取结果
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- 结果展示区 -->
+      <div id="result-section" class="hidden bg-white rounded-xl p-6 md:p-8 card-shadow">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-bold text-primary">录取结果信息</h3>
+          <span id="result-status" class="px-3 py-1 rounded-full bg-success/10 text-success font-medium text-sm"></span>
+        </div>
+        
+        <div class="space-y-4 mb-8">
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm text-gray-500">学生姓名</p>
+              <p id="result-name" class="font-medium text-lg"></p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">身份证号</p>
+              <p id="result-id" class="font-medium text-lg"></p>
+            </div>
+          </div>
+          
+          <div>
+            <p class="text-sm text-gray-500">报到编号</p>
+            <p id="result-code" class="font-bold text-2xl text-accent"></p>
+          </div>
+          
+          <div>
+            <p class="text-sm text-gray-500">录取情况</p>
+            <p id="result-admission" class="font-medium text-lg text-success"></p>
+          </div>
+          
+          <div>
+            <p class="text-sm text-gray-500">报到时间</p>
+            <p id="result-time" class="font-medium"></p>
+          </div>
+          
+          <div>
+            <p class="text-sm text-gray-500">特别提醒</p>
+            <p id="result-reminder" class="font-medium text-amber-600"></p>
+          </div>
+        </div>
+        
+        <!-- 校服征订选项 -->
+        <div class="border-t pt-6 pb-4">
+          <h4 class="font-semibold text-lg mb-4">校服征订征求家长意见</h4>
+          <div class="space-y-3 mb-6" id="uniform-options">
+            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-custom">
+              <input type="radio" name="uniform" value="1" class="w-5 h-5 text-primary focus:ring-primary">
+              <span class="ml-3">1. 同意购买校服（夏装，春秋装，冬装）</span>
+            </label>
+            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-custom">
+              <input type="radio" name="uniform" value="2" class="w-5 h-5 text-primary focus:ring-primary">
+              <span class="ml-3">2. 同意购买校服（夏装，春秋装）</span>
+            </label>
+            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-custom">
+              <input type="radio" name="uniform" value="3" class="w-5 h-5 text-primary focus:ring-primary">
+              <span class="ml-3">3. 不同意购买校服</span>
+            </label>
+          </div>
+          
+          <button id="submit-uniform" class="w-full bg-accent hover:bg-accent/90 text-white font-medium py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-custom transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+            <i class="fa fa-check mr-2"></i>确认提交
+          </button>
+        </div>
+      </div>
+      
+      <!-- 提交成功弹窗 -->
+      <div id="success-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 md:p-8 max-w-md w-full mx-4 transform transition-all scale-95 opacity-0" id="modal-content">
+          <div class="text-center">
+            <div class="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fa fa-check text-2xl text-success"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">提交成功</h3>
+            <p class="text-gray-600 mb-6">感谢您的查询，请截图后微信扫码缴费。</p>
+            
+            <div class="bg-gray-100 p-4 rounded-lg inline-block mx-auto mb-6">
+              <img id="payment-qrcode" src="" alt="缴费二维码" class="w-48 h-48 object-contain">
+            </div>
+            
+            <button id="close-modal" class="bg-primary hover:bg-primary/90 text-white font-medium py-2 px-6 rounded-lg transition-custom">
+              关闭
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 管理页面 -->
+    <section id="admin-section" class="max-w-6xl mx-auto hidden">
+      <div class="text-center mb-10">
+        <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-primary mb-3 text-shadow">管理中心</h2>
+        <p class="text-neutral text-lg">查询统计与数据管理</p>
+      </div>
+      
+      <!-- 登录验证 -->
+      <div id="admin-login" class="bg-white rounded-xl p-6 md:p-8 card-shadow max-w-md mx-auto mb-8">
+        <h3 class="text-xl font-bold text-primary mb-6 text-center">管理员登录</h3>
+        <form id="login-form" class="space-y-4">
+          <div>
+            <label for="admin-username" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+            <input type="text" id="admin-username" required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom outline-none"
+              placeholder="请输入用户名">
+          </div>
+          <div>
+            <label for="admin-password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+            <input type="password" id="admin-password" required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom outline-none"
+              placeholder="请输入密码">
+          </div>
+          <button type="submit" 
+            class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 rounded-lg shadow-md hover:shadow-lg transition-custom">
+            登录
+          </button>
+        </form>
+      </div>
+      
+      <!-- 管理内容区 -->
+      <div id="admin-content" class="hidden space-y-8">
+        <!-- 数据源上传 -->
+        <div class="bg-white rounded-xl p-6 md:p-8 card-shadow">
+          <h3 class="text-xl font-bold text-primary mb-4">数据源管理</h3>
+          <p class="text-gray-600 mb-6">上传JSON格式的学生数据文件，将替换当前查询数据源</p>
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-custom cursor-pointer" id="data-upload-area">
+            <input type="file" id="data-upload" accept=".json" class="hidden">
+            <i class="fa fa-file-text-o text-4xl text-gray-400 mb-3"></i>
+            <p class="text-gray-500">点击上传JSON数据源文件</p>
+            <p class="text-gray-400 text-sm mt-1">支持JSON格式，结构需与系统要求一致</p>
+          </div>
+          <div id="data-upload-status" class="mt-4 hidden"></div>
+        </div>
+        
+        <!-- 二维码上传 -->
+        <div class="bg-white rounded-xl p-6 md:p-8 card-shadow">
+          <h3 class="text-xl font-bold text-primary mb-4">缴费二维码设置</h3>
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-custom cursor-pointer" id="qrcode-upload-area">
+            <input type="file" id="qrcode-upload" accept="image/*" class="hidden">
+            <i class="fa fa-cloud-upload text-4xl text-gray-400 mb-3"></i>
+            <p class="text-gray-500">点击上传缴费二维码图片</p>
+            <p class="text-gray-400 text-sm mt-1">支持JPG、PNG格式</p>
+          </div>
+          <div id="qrcode-preview" class="mt-4 hidden">
+            <img id="qrcode-preview-img" src="" alt="二维码预览" class="max-h-40 mx-auto">
+          </div>
+        </div>
+        
+        <!-- 统计信息 -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="bg-white rounded-xl p-6 card-shadow transform transition-custom hover:scale-[1.02]">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-500 text-sm">总录取人数</p>
+                <p id="total-students" class="text-3xl font-bold text-primary mt-1">0</p>
+              </div>
+              <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                <i class="fa fa-users text-xl text-primary"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl p-6 card-shadow transform transition-custom hover:scale-[1.02]">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-500 text-sm">已查询人数</p>
+                <p id="queried-students" class="text-3xl font-bold text-secondary mt-1">0</p>
+              </div>
+              <div class="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center">
+                <i class="fa fa-search text-xl text-secondary"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl p-6 card-shadow transform transition-custom hover:scale-[1.02]">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-500 text-sm">已提交校服选择</p>
+                <p id="uniform-submitted" class="text-3xl font-bold text-accent mt-1">0</p>
+              </div>
+              <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center">
+                <i class="fa fa-check-square-o text-xl text-accent"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl p-6 card-shadow transform transition-custom hover:scale-[1.02]">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-500 text-sm">校服征订率</p>
+                <p id="uniform-rate" class="text-3xl font-bold text-success mt-1">0%</p>
+              </div>
+              <div class="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center">
+                <i class="fa fa-pie-chart text-xl text-success"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 图表统计 -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="bg-white rounded-xl p-6 card-shadow">
+            <h3 class="text-lg font-semibold mb-4">校服征订情况</h3>
+            <div class="h-64">
+              <canvas id="uniform-chart"></canvas>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl p-6 card-shadow">
+            <h3 class="text-lg font-semibold mb-4">查询趋势</h3>
+            <div class="h-64">
+              <canvas id="query-trend-chart"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 数据列表 -->
+        <div class="bg-white rounded-xl p-6 card-shadow overflow-hidden">
+          <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold mb-3 md:mb-0">学生查询记录</h3>
+            <button id="export-data" class="bg-success hover:bg-success/90 text-white font-medium py-2 px-4 rounded-lg shadow transition-custom flex items-center">
+              <i class="fa fa-download mr-2"></i>导出数据
+            </button>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead>
+                <tr>
+                  <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">姓名</th>
+                  <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">报到编号</th>
+                  <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">查询时间</th>
+                  <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">校服选择</th>
+                  <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                </tr>
+              </thead>
+              <tbody id="records-table" class="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                    <i class="fa fa-info-circle mr-2"></i>暂无查询记录
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-gray-800 text-white py-8">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <div class="flex items-center space-x-2">
+            <i class="fa fa-graduation-cap"></i>
+            <span class="font-bold">枣庄市第四十一中学北校区</span>
+          </div>
+          <p class="text-gray-400 text-sm mt-1">© 2025 版权所有</p>
+        </div>
+        <div class="text-gray-400 text-sm">
+          <p>咨询电话: 0632-XXXXXXX</p>
+          <p>学校地址: 枣庄市XX区XX路XX号</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // 从本地存储加载数据或使用默认数据
+    let studentsData = JSON.parse(localStorage.getItem('studentsData')) || [
+        {
+            "﻿学生姓名": "丁国豪",
+            "身份证号": "37040220121114053X",
+            "报到编号": "B0001",
+            "录取情况": "恭喜您被枣庄市第四十一中学北校区录取",
+            "校服征订征求家长意见选项（详见公众号说明）": "",
+            "缴费二维码": "jiaofei2.png",
+            "报到时间": "请持本页面截图8月29日早8:00携带文具到校报到。详细说明请见公众号榜示。",
+            "特别提醒": "校服意见选择后，别忘记点击下面“确认提交”"
+        },
+        {
+            "﻿学生姓名": "丁文诚",
+            "身份证号": "371324201301164918",
+            "报到编号": "B0002",
+            "录取情况": "恭喜您被枣庄市第四十一中学北校区录取",
+            "校服征订征求家长意见选项（详见公众号说明）": "",
+            "缴费二维码": "jiaofei2.png",
+            "报到时间": "请持本页面截图8月29日早8:01携带文具到校报到。详细说明请见公众号榜示。",
+            "特别提醒": "校服意见选择后，别忘记点击下面“确认提交”"
+        },
+        {
+            "﻿学生姓名": "丁泽城",
+            "身份证号": "370402201301160112",
+            "报到编号": "B0003",
+            "录取情况": "恭喜您被枣庄市第四十一中学北校区录取",
+            "校服征订征求家长意见选项（详见公众号说明）": "",
+            "缴费二维码": "jiaofei2.png",
+            "报到时间": "请持本页面截图8月29日早8:02携带文具到校报到。详细说明请见公众号榜示。",
+            "特别提醒": "校服意见选择后，别忘记点击下面“确认提交”"
+        }
+    ];
+
+    // 存储查询记录和校服选择的数组
+    let queryRecords = JSON.parse(localStorage.getItem('queryRecords')) || [];
+    let uniformSelections = JSON.parse(localStorage.getItem('uniformSelections')) || {};
+    let paymentQrcode = localStorage.getItem('paymentQrcode') || '';
+    
+    // DOM元素
+    const querySection = document.getElementById('query-section');
+    const adminSection = document.getElementById('admin-section');
+    const queryLink = document.getElementById('query-link');
+    const adminLink = document.getElementById('admin-link');
+    const queryForm = document.getElementById('query-form');
+    const queryButton = document.getElementById('query-button');
+    const studentNameInput = document.getElementById('student-name');
+    const idCardInput = document.getElementById('id-card');
+    const nameError = document.getElementById('name-error');
+    const idError = document.getElementById('id-error');
+    const resultSection = document.getElementById('result-section');
+    const resultName = document.getElementById('result-name');
+    const resultId = document.getElementById('result-id');
+    const resultCode = document.getElementById('result-code');
+    const resultAdmission = document.getElementById('result-admission');
+    const resultTime = document.getElementById('result-time');
+    const resultReminder = document.getElementById('result-reminder');
+    const resultStatus = document.getElementById('result-status');
+    const uniformOptions = document.querySelectorAll('input[name="uniform"]');
+    const submitUniform = document.getElementById('submit-uniform');
+    const successModal = document.getElementById('success-modal');
+    const modalContent = document.getElementById('modal-content');
+    const closeModal = document.getElementById('close-modal');
+    const paymentQrcodeImg = document.getElementById('payment-qrcode');
+    const adminLogin = document.getElementById('admin-login');
+    const adminContent = document.getElementById('admin-content');
+    const loginForm = document.getElementById('login-form');
+    const qrcodeUploadArea = document.getElementById('qrcode-upload-area');
+    const qrcodeUpload = document.getElementById('qrcode-upload');
+    const qrcodePreview = document.getElementById('qrcode-preview');
+    const qrcodePreviewImg = document.getElementById('qrcode-preview-img');
+    const dataUploadArea = document.getElementById('data-upload-area');
+    const dataUpload = document.getElementById('data-upload');
+    const dataUploadStatus = document.getElementById('data-upload-status');
+    const totalStudentsEl = document.getElementById('total-students');
+    const queriedStudentsEl = document.getElementById('queried-students');
+    const uniformSubmittedEl = document.getElementById('uniform-submitted');
+    const uniformRateEl = document.getElementById('uniform-rate');
+    const recordsTable = document.getElementById('records-table');
+    const exportDataBtn = document.getElementById('export-data');
+    
+    // 当前查询的学生数据
+    let currentStudent = null;
+    
+    // 页面切换功能
+    queryLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      querySection.classList.remove('hidden');
+      adminSection.classList.add('hidden');
+      queryLink.classList.add('text-yellow-200');
+      adminLink.classList.remove('text-yellow-200');
+    });
+    
+    adminLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      querySection.classList.add('hidden');
+      adminSection.classList.remove('hidden');
+      queryLink.classList.remove('text-yellow-200');
+      adminLink.classList.add('text-yellow-200');
+      
+      // 检查是否已登录
+      if (localStorage.getItem('adminLoggedIn') === 'true') {
+        adminLogin.classList.add('hidden');
+        adminContent.classList.remove('hidden');
+        updateAdminStats();
+        renderRecordsTable();
+        initCharts();
+      } else {
+        adminLogin.classList.remove('hidden');
+        adminContent.classList.add('hidden');
+      }
+    });
+    
+    // 验证身份证号格式的函数
+    function validateIdCard(id) {
+      // 简单的身份证号格式验证（18位）
+      const reg = /(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+      return reg.test(id);
+    }
+    
+    // 查询表单提交功能 - 修复版
+    queryForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      // 清除之前的错误状态
+      studentNameInput.classList.remove('form-error');
+      idCardInput.classList.remove('form-error');
+      nameError.classList.add('hidden');
+      idError.classList.add('hidden');
+      
+      // 获取输入值
+      const name = studentNameInput.value.trim();
+      const idCard = idCardInput.value.trim();
+      
+      // 验证输入
+      let isValid = true;
+      
+      if (!name) {
+        studentNameInput.classList.add('form-error');
+        nameError.classList.remove('hidden');
+        isValid = false;
+      }
+      
+      if (!idCard || !validateIdCard(idCard)) {
+        idCardInput.classList.add('form-error');
+        idError.classList.remove('hidden');
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        return;
+      }
+      
+      // 查找匹配的学生
+      const student = studentsData.find(s => 
+        s['﻿学生姓名'] === name && s['身份证号'] === idCard
+      );
+      
+      if (student) {
+        // 显示查询结果
+        currentStudent = student;
+        resultName.textContent = student['﻿学生姓名'];
+        resultId.textContent = student['身份证号'];
+        resultCode.textContent = student['报到编号'];
+        resultAdmission.textContent = student['录取情况'];
+        resultTime.textContent = student['报到时间'];
+        resultReminder.textContent = student['特别提醒'];
+        resultStatus.textContent = '已找到';
+        
+        // 重置校服选择
+        uniformOptions.forEach(option => option.checked = false);
+        submitUniform.disabled = true;
+        
+        // 如果已有选择，自动选中
+        if (uniformSelections[student['报到编号']]) {
+          const selectedOption = document.querySelector(`input[name="uniform"][value="${uniformSelections[student['报到编号']]}"]`);
+          if (selectedOption) selectedOption.checked = true;
+          submitUniform.disabled = false;
+        }
+        
+        // 显示结果区域，添加动画
+        resultSection.classList.remove('hidden');
+        resultSection.classList.add('animate-fadeIn');
+        
+        // 记录查询信息（去重）
+        const existingRecord = queryRecords.find(r => r.code === student['报到编号']);
+        if (!existingRecord) {
+          queryRecords.push({
+            name: student['﻿学生姓名'],
+            code: student['报到编号'],
+            id: student['身份证号'],
+            queryTime: new Date().toISOString()
+          });
+          localStorage.setItem('queryRecords', JSON.stringify(queryRecords));
+        }
+        
+        // 滚动到结果区域
+        resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        // 未找到学生
+        alert('未找到匹配的学生信息，请检查姓名和身份证号是否正确');
+      }
+    });
+    
+    // 为查询按钮添加点击事件（额外保障）
+    queryButton.addEventListener('click', (e) => {
+      // 触发表单提交
+      queryForm.dispatchEvent(new Event('submit'));
+    });
+    
+    // 监听校服选项变化
+    uniformOptions.forEach(option => {
+      option.addEventListener('change', () => {
+        submitUniform.disabled = false;
+      });
+    });
+    
+    // 提交校服选择
+    submitUniform.addEventListener('click', () => {
+      if (!currentStudent) return;
+      
+      const selectedOption = document.querySelector('input[name="uniform"]:checked');
+      if (selectedOption) {
+        // 保存选择
+        uniformSelections[currentStudent['报到编号']] = selectedOption.value;
+        localStorage.setItem('uniformSelections', JSON.stringify(uniformSelections));
+        
+        // 显示成功弹窗
+        successModal.classList.remove('hidden');
+        setTimeout(() => {
+          modalContent.classList.remove('scale-95', 'opacity-0');
+          modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+        
+        // 设置二维码
+        if (paymentQrcode) {
+          paymentQrcodeImg.src = paymentQrcode;
+        } else {
+          // 默认二维码
+          paymentQrcodeImg.src = 'https://picsum.photos/200/200';
+        }
+      }
+    });
+    
+    // 关闭弹窗
+    closeModal.addEventListener('click', () => {
+      modalContent.classList.remove('scale-100', 'opacity-100');
+      modalContent.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        successModal.classList.add('hidden');
+      }, 300);
+    });
+    
+    // 管理员登录功能
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('admin-username').value;
+      const password = document.getElementById('admin-password').value;
+      
+      // 简单验证
+      if (username === 'admin' && password === 'admin123') {
+        localStorage.setItem('adminLoggedIn', 'true');
+        adminLogin.classList.add('hidden');
+        adminContent.classList.remove('hidden');
+        updateAdminStats();
+        renderRecordsTable();
+        initCharts();
+      } else {
+        alert('用户名或密码错误');
+      }
+    });
+    
+    // 二维码上传
+    qrcodeUploadArea.addEventListener('click', () => {
+      qrcodeUpload.click();
+    });
+    
+    qrcodeUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          paymentQrcode = event.target.result;
+          localStorage.setItem('paymentQrcode', paymentQrcode);
+          qrcodePreviewImg.src = paymentQrcode;
+          qrcodePreview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    
+    // JSON数据源上传功能
+    dataUploadArea.addEventListener('click', () => {
+      dataUpload.click();
+    });
+    
+    dataUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            // 解析JSON数据
+            const newData = JSON.parse(event.target.result);
+            
+            // 简单验证数据格式
+            if (Array.isArray(newData) && newData.length > 0 && 
+                newData[0]['﻿学生姓名'] && newData[0]['身份证号'] && 
+                newData[0]['报到编号']) {
+              
+              // 保存新数据
+              studentsData = newData;
+              localStorage.setItem('studentsData', JSON.stringify(studentsData));
+              
+              // 显示成功消息
+              dataUploadStatus.innerHTML = `
+                <div class="p-3 bg-green-100 text-green-800 rounded-lg flex items-center">
+                  <i class="fa fa-check-circle mr-2"></i>
+                  <span>数据上传成功，共导入 ${newData.length} 条学生信息</span>
+                </div>
+              `;
+              dataUploadStatus.classList.remove('hidden');
+              
+              // 更新统计信息
+              updateAdminStats();
+              initCharts();
+            } else {
+              throw new Error('数据格式不正确，缺少必要字段');
+            }
+          } catch (error) {
+            // 显示错误消息
+            dataUploadStatus.innerHTML = `
+              <div class="p-3 bg-red-100 text-red-800 rounded-lg flex items-center">
+                <i class="fa fa-exclamation-circle mr-2"></i>
+                <span>数据解析失败: ${error.message}</span>
+              </div>
+            `;
+            dataUploadStatus.classList.remove('hidden');
+          }
+        };
+        reader.readAsText(file);
+      }
+    });
+    
+    // 更新管理员统计信息
+    function updateAdminStats() {
+      const totalStudents = studentsData.length;
+      const queriedStudents = queryRecords.length;
+      const uniformSubmitted = Object.keys(uniformSelections).length;
+      const uniformRate = totalStudents > 0 ? Math.round((uniformSubmitted / totalStudents) * 100) : 0;
+      
+      totalStudentsEl.textContent = totalStudents;
+      queriedStudentsEl.textContent = queriedStudents;
+      uniformSubmittedEl.textContent = uniformSubmitted;
+      uniformRateEl.textContent = `${uniformRate}%`;
+    }
+    
+    // 渲染记录表格
+    function renderRecordsTable() {
+      if (queryRecords.length === 0) {
+        recordsTable.innerHTML = `
+          <tr>
+            <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+              <i class="fa fa-info-circle mr-2"></i>暂无查询记录
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      // 按查询时间排序（最新的在前）
+      const sortedRecords = [...queryRecords].sort((a, b) => 
+        new Date(b.queryTime) - new Date(a.queryTime)
+      );
+      
+      recordsTable.innerHTML = sortedRecords.map(record => {
+        const uniformChoice = uniformSelections[record.code];
+        let uniformText = '';
+        let statusClass = 'bg-gray-100 text-gray-500';
+        
+        if (uniformChoice === '1') {
+          uniformText = '夏装，春秋装，冬装';
+          statusClass = 'bg-green-100 text-green-800';
+        } else if (uniformChoice === '2') {
+          uniformText = '夏装，春秋装';
+          statusClass = 'bg-green-100 text-green-800';
+        } else if (uniformChoice === '3') {
+          uniformText = '不同意购买';
+          statusClass = 'bg-yellow-100 text-yellow-800';
+        } else {
+          uniformText = '未选择';
+        }
+        
+        const statusText = uniformChoice ? '已提交' : '待提交';
+        
+        return `
+          <tr class="hover:bg-gray-50 transition-custom">
+            <td class="px-4 py-4 whitespace-nowrap">${record.name}</td>
+            <td class="px-4 py-4 whitespace-nowrap font-medium text-accent">${record.code}</td>
+            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+              ${new Date(record.queryTime).toLocaleString()}
+            </td>
+            <td class="px-4 py-4">${uniformText}</td>
+            <td class="px-4 py-4 whitespace-nowrap">
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                ${statusText}
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+    
+    // 导出数据
+    exportDataBtn.addEventListener('click', () => {
+      // 准备导出数据
+      const exportData = queryRecords.map(record => {
+        const student = studentsData.find(s => s['报到编号'] === record.code);
+        const uniformChoice = uniformSelections[record.code];
+        let uniformText = '';
+        
+        if (uniformChoice === '1') {
+          uniformText = '夏装，春秋装，冬装';
+        } else if (uniformChoice === '2') {
+          uniformText = '夏装，春秋装';
+        } else if (uniformChoice === '3') {
+          uniformText = '不同意购买';
+        } else {
+          uniformText = '未选择';
+        }
+        
+        return {
+          '学生姓名': record.name,
+          '身份证号': record.id,
+          '报到编号': record.code,
+          '查询时间': new Date(record.queryTime).toLocaleString(),
+          '校服选择': uniformText,
+          '报到时间': student ? student['报到时间'] : ''
+        };
+      });
+      
+      // 转换为CSV
+      const headers = Object.keys(exportData[0] || {});
+      const csv = [
+        headers.join(','),
+        ...exportData.map(row => headers.map(field => JSON.stringify(row[field])).join(','))
+      ].join('\n');
+      
+      // 创建下载链接
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `新生查询记录_${new Date().toLocaleDateString()}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+    
+    // 初始化图表
+    function initCharts() {
+      // 销毁已存在的图表（如果有）
+      if (window.uniformChart) window.uniformChart.destroy();
+      if (window.queryTrendChart) window.queryTrendChart.destroy();
+      
+      // 校服征订情况图表
+      const uniformCtx = document.getElementById('uniform-chart').getContext('2d');
+      
+      // 统计各选项数量
+      const option1Count = Object.values(uniformSelections).filter(v => v === '1').length;
+      const option2Count = Object.values(uniformSelections).filter(v => v === '2').length;
+      const option3Count = Object.values(uniformSelections).filter(v => v === '3').length;
+      const unselectedCount = studentsData.length - Object.keys(uniformSelections).length;
+      
+      window.uniformChart = new Chart(uniformCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['全套校服', '夏装+春秋装', '不同意购买', '未选择'],
+          datasets: [{
+            data: [option1Count, option2Count, option3Count, unselectedCount],
+            backgroundColor: [
+              '#10B981', // 绿色
+              '#3B82F6', // 蓝色
+              '#F97316', // 橙色
+              '#E5E7EB'  // 灰色
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          },
+          cutout: '65%'
+        }
+      });
+      
+      // 查询趋势图表
+      const trendCtx = document.getElementById('query-trend-chart').getContext('2d');
+      
+      // 按日期统计查询数量
+      const dailyQueries = {};
+      queryRecords.forEach(record => {
+        const date = new Date(record.queryTime).toLocaleDateString();
+        dailyQueries[date] = (dailyQueries[date] || 0) + 1;
+      });
+      
+      // 获取最近7天的日期
+      const dates = [];
+      const today = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(today.getDate() - i);
+        dates.push(date.toLocaleDateString());
+      }
+      
+      // 填充数据
+      const data = dates.map(date => dailyQueries[date] || 0);
+      
+      window.queryTrendChart = new Chart(trendCtx, {
+        type: 'bar',
+        data: {
+          labels: dates,
+          datasets: [{
+            label: '查询次数',
+            data: data,
+            backgroundColor: '#3B82F6',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // 页面加载时设置二维码
+    if (paymentQrcode) {
+      qrcodePreviewImg.src = paymentQrcode;
+      qrcodePreview.classList.remove('hidden');
+    }
+    
+    // 滚动时改变导航栏样式
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('header');
+      if (window.scrollY > 10) {
+        header.classList.add('py-2', 'bg-primary/95', 'backdrop-blur-sm');
+        header.classList.remove('py-3');
+      } else {
+        header.classList.add('py-3');
+        header.classList.remove('py-2', 'bg-primary/95', 'backdrop-blur-sm');
+      }
+    });
+  </script>
+</body>
+</html>
