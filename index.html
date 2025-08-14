@@ -225,6 +225,7 @@
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral uppercase tracking-wider">身份证号</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral uppercase tracking-wider">校服选择</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral uppercase tracking-wider">查询时间</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral uppercase tracking-wider">状态</th>
                             </tr>
                         </thead>
                         <tbody id="query-records" class="bg-white divide-y divide-gray-200">
@@ -332,6 +333,11 @@
             
             // 下载数据事件
             downloadDataBtn.addEventListener('click', downloadQueryData);
+            
+            // 校服选项变更时更新记录
+            document.querySelectorAll('input[name="uniform-option"]').forEach(radio => {
+                radio.addEventListener('change', updateUniformChoiceInHistory);
+            });
         }
         
         // 查询学生信息
@@ -355,20 +361,60 @@
                 showResultSection();
                 hideNotFoundSection();
                 
-                // 记录查询历史（不包含未提交的校服选择）
+                // 记录查询历史（不包含终端信息）
                 const queryTime = new Date().toLocaleString();
-                queryHistory.push({
-                    id: Date.now(),
-                    studentName: name,
-                    idCard: idCard,
-                    uniformChoice: '',
-                    queryTime: queryTime,
-                    submitted: false
-                });
+                
+                // 检查是否已有相同学生的未提交记录，有则更新时间，无则添加新记录
+                const existingRecordIndex = queryHistory.findIndex(r => 
+                    r.studentName === name && r.idCard === idCard && !r.submitted
+                );
+                
+                if (existingRecordIndex >= 0) {
+                    // 更新现有未提交记录的查询时间
+                    queryHistory[existingRecordIndex].queryTime = queryTime;
+                } else {
+                    // 添加新的查询记录
+                    queryHistory.push({
+                        id: Date.now(),
+                        studentName: name,
+                        idCard: idCard,
+                        uniformChoice: document.querySelector('input[name="uniform-option"]:checked').value,
+                        queryTime: queryTime,
+                        submitted: false
+                    });
+                }
+                
                 saveQueryHistory();
+                // 如果管理员已登录，实时更新记录显示
+                if (!adminContent.classList.contains('hidden')) {
+                    displayQueryRecords();
+                }
             } else {
                 hideResultSection();
                 showNotFoundSection();
+            }
+        }
+        
+        // 更新历史记录中的校服选择
+        function updateUniformChoiceInHistory() {
+            const name = studentNameInput.value.trim();
+            const idCard = idCardInput.value.trim();
+            if (!name || !idCard) return;
+            
+            const selectedOption = document.querySelector('input[name="uniform-option"]:checked').value;
+            
+            // 更新当前学生的校服选择
+            const lastRecordIndex = queryHistory.findIndex(r => 
+                r.studentName === name && r.idCard === idCard && !r.submitted
+            );
+            
+            if (lastRecordIndex >= 0) {
+                queryHistory[lastRecordIndex].uniformChoice = selectedOption;
+                saveQueryHistory();
+                // 如果管理员已登录，实时更新记录显示
+                if (!adminContent.classList.contains('hidden')) {
+                    displayQueryRecords();
+                }
             }
         }
         
@@ -397,8 +443,6 @@
                     <p class="font-medium">${student['录取情况']}</p>
                 </div>
                 
-                
-                
                 <div>
                     <p class="text-sm text-neutral">报到时间</p>
                     <p class="font-medium">${student['报到时间']}</p>
@@ -417,14 +461,20 @@
             const idCard = idCardInput.value.trim();
             const selectedOption = document.querySelector('input[name="uniform-option"]:checked').value;
             
-            // 更新最后一条查询记录的校服选择
-            if (queryHistory.length > 0) {
-                const lastRecordIndex = queryHistory.length - 1;
-                if (queryHistory[lastRecordIndex].studentName === name && 
-                    queryHistory[lastRecordIndex].idCard === idCard) {
-                    queryHistory[lastRecordIndex].uniformChoice = selectedOption;
-                    queryHistory[lastRecordIndex].submitted = true;
-                    saveQueryHistory();
+            // 更新最后一条查询记录的校服选择和提交状态
+            const lastRecordIndex = queryHistory.findIndex(r => 
+                r.studentName === name && r.idCard === idCard && !r.submitted
+            );
+            
+            if (lastRecordIndex >= 0) {
+                queryHistory[lastRecordIndex].uniformChoice = selectedOption;
+                queryHistory[lastRecordIndex].submitted = true;
+                queryHistory[lastRecordIndex].submitTime = new Date().toLocaleString();
+                saveQueryHistory();
+                
+                // 如果管理员已登录，实时更新记录显示
+                if (!adminContent.classList.contains('hidden')) {
+                    displayQueryRecords();
                 }
             }
             
@@ -466,9 +516,20 @@
             noRecords.classList.add('hidden');
             queryRecords.innerHTML = '';
             
-            queryHistory.forEach((record, index) => {
+            // 按查询时间倒序显示
+            const sortedHistory = [...queryHistory].sort((a, b) => new Date(b.queryTime) - new Date(a.queryTime));
+            
+            sortedHistory.forEach((record, index) => {
                 const row = document.createElement('tr');
                 row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                
+                // 状态显示
+                let statusText = '已查询';
+                let statusClass = 'text-neutral';
+                if (record.submitted) {
+                    statusText = '已提交';
+                    statusClass = 'text-green-600';
+                }
                 
                 row.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral">${index + 1}</td>
@@ -476,6 +537,7 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral">${maskIdCard(record.idCard)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral">${record.uniformChoice || '未选择'}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral">${record.queryTime}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${statusClass}">${statusText}</td>
                 `;
                 
                 queryRecords.appendChild(row);
@@ -496,10 +558,10 @@
             }
             
             // 转换为CSV格式
-            let csvContent = "序号,学生姓名,身份证号,校服选择,查询时间,是否提交\n";
+            let csvContent = "序号,学生姓名,身份证号,校服选择,查询时间,提交状态,提交时间\n";
             
             queryHistory.forEach((record, index) => {
-                csvContent += `${index + 1},${record.studentName},${record.idCard},${record.uniformChoice},${record.queryTime},${record.submitted ? '是' : '否'}\n`;
+                csvContent += `${index + 1},${record.studentName},${record.idCard},${record.uniformChoice},${record.queryTime},${record.submitted ? '已提交' : '未提交'},${record.submitTime || ''}\n`;
             });
             
             // 创建下载链接
