@@ -283,7 +283,7 @@
         // 加载学生数据
         async function loadStudentsData() {
             try {
-                const response = await fetch('https://raw.githubusercontent.com/unsky2003/chaxun/refs/heads/main/students.json');
+                const response = await fetch('https://raw.githubusercontent.com/unsky2003/chaxun/refs/heads/main/students_2000.json');
                 if (!response.ok) {
                     throw new Error('数据加载失败');
                 }
@@ -397,12 +397,7 @@
                     <p class="font-medium">${student['录取情况']}</p>
                 </div>
                 
-                <div>
-                    <p class="text-sm text-neutral">缴费二维码</p>
-                    <div class="mt-2">
-                        <img src="${student['缴费二维码']}" alt="缴费二维码" class="h-32 w-auto rounded">
-                    </div>
-                </div>
+                
                 
                 <div>
                     <p class="text-sm text-neutral">报到时间</p>
